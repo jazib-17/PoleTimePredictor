@@ -142,7 +142,7 @@ for (row, col), cell in table.get_celld().items():
 
 
 ax1.set_title(
-    "Formula 1 Pole Lap Time Predictions",
+    "Formula 1 Pole Lap Time ML Predictions",
     fontsize=22,
     color="white",
     pad=30
@@ -209,7 +209,7 @@ ax2.scatter(
 
 
 ax2.set_title(
-    "Pole Laptime Predictor (2025 vs 2026 vs Predicted)",
+    "Pole Laptime ML Predictor (2025 vs 2026 vs Predicted)",
     fontsize=22,
     color="white"
 )
