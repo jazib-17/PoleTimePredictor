@@ -159,6 +159,14 @@ fig1.text(
 
 
 plt.tight_layout()
+
+fig1.savefig(
+    "images/pole_prediction_table.png",
+    dpi=300,
+    bbox_inches="tight"
+)
+
+
 plt.show()
 
 # ==========================
@@ -232,6 +240,13 @@ ax2.legend(
 )
 
 plt.tight_layout()
+
+fig2.savefig(
+    "images/pole_prediction_graph.png",
+    dpi=300,
+    bbox_inches="tight"
+)
+
 plt.show()
 
 # ==========================
@@ -290,4 +305,11 @@ for i, value in enumerate(top_features["Importance"]):
 
 
 plt.tight_layout()
+
+fig3.savefig(
+    "images/feature_importance.png",
+    dpi=300,
+    bbox_inches="tight"
+)
+
 plt.show()
