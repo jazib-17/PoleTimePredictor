@@ -225,12 +225,12 @@ ax2.set_xticks(poletimes['Race'])
 ax2.set_xticklabels(
     race_labels,
     rotation=45,
-    fontsize=14,
+    fontsize=15,
     ha='right',
     color="white"
 )
 
-ax2.tick_params(axis='y', labelsize=14, colors='white')
+ax2.tick_params(axis='y', labelsize=15, colors='white')
 ax2.tick_params(colors="white")
 
 ax2.grid(True, alpha=0.2, color="gray")
