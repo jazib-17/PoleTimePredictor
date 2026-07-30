@@ -150,7 +150,3 @@ Every column available in the merged dataset, and whether it's currently fed int
 ## Author
 
 Jazib Ahmed
-
-## Author
-
-Jazib Ahmed
