@@ -77,8 +77,8 @@ table = ax1.table(
     colLabels=[
         "Race",
         "2025 Pole Time",
-        "Predicted 2026 Pole Time",
-        "Actual 2026 Pole Time"
+        "2026 Predicted Time",
+        "2026 Actual Time"
     ],
     loc="center",
     cellLoc="center",
@@ -87,7 +87,7 @@ table = ax1.table(
 
 # Larger font for 12x8 figure
 table.auto_set_font_size(False)
-table.set_fontsize(13)
+table.set_fontsize(16)
 
 # Increase row height
 table.scale(1, 2.5)
@@ -106,7 +106,7 @@ for (row, col), cell in table.get_celld().items():
     if row == 0:
         cell.set_facecolor("#1a1a1a")
         cell.get_text().set_weight("bold")
-        cell.get_text().set_fontsize(12)
+        cell.get_text().set_fontsize(14)
 
 for (row, col), cell in table.get_celld().items():
 
@@ -124,7 +124,7 @@ for (row, col), cell in table.get_celld().items():
 
         cell.set_facecolor(header_colors[col])
         cell.get_text().set_weight("bold")
-        cell.get_text().set_fontsize(12)
+        cell.get_text().set_fontsize(14)
 
     else:
         cell.set_facecolor("#2b2b2b")
@@ -151,7 +151,7 @@ ax1.set_title(
 fig1.text(
     0.98,
     0.02,
-    "* All 2026 pole times are predicted in dry conditions",
+    "* All 2026 predictions are in dry conditions",
     ha="right",
     fontsize=10,
     color="white"
@@ -201,6 +201,7 @@ ax2.scatter(
     poleset2026['PoleTime'],
     marker='o',
     color='blue',
+    edgecolor='white',
     alpha=1,
     s=80,
     label='2026 Qualifying'
@@ -209,24 +210,27 @@ ax2.scatter(
 
 ax2.set_title(
     "Pole Laptime Predictor (2025 vs 2026 vs Predicted)",
-    fontsize=20,
+    fontsize=22,
     color="white"
 )
 
 ax2.set_ylabel(
     "Pole Time (s)",
-    fontsize=12,
+    fontsize=16,
     color="white"
 )
 
+race_labels = [race.replace("Grand Prix", "GP") for race in poletimes["Race"]]
 ax2.set_xticks(poletimes['Race'])
 ax2.set_xticklabels(
-    poletimes['Race'],
+    race_labels,
     rotation=45,
+    fontsize=14,
     ha='right',
     color="white"
 )
 
+ax2.tick_params(axis='y', labelsize=14, colors='white')
 ax2.tick_params(colors="white")
 
 ax2.grid(True, alpha=0.2, color="gray")
@@ -236,7 +240,8 @@ ax2.legend(
     facecolor="#1a1a1a",
     edgecolor="#444444",
     labelcolor="white",
-    framealpha = 0.2
+    framealpha = 0.2,
+    fontsize=12.5
 )
 
 plt.tight_layout()
@@ -280,11 +285,12 @@ ax3.set_title(
 
 ax3.set_xlabel(
     "Importance (%)",
-    fontsize=12,
+    fontsize=15,
     color="white"
 )
 
-ax3.tick_params(colors="white")
+ax3.tick_params(axis='y', labelsize=13, colors='white')
+ax3.tick_params(axis='x', labelsize=15, colors='white')
 
 ax3.grid(
     axis="x",
@@ -295,14 +301,16 @@ ax3.grid(
 # Add importance values beside bars
 for i, value in enumerate(top_features["Importance"]):
     ax3.text(
-        value,
+        value*1.002,
         i,
         f"{value:.2f}",
         va="center",
         color="white",
-        fontsize=10
+        fontsize=13
     )
 
+max_importance = top_features["Importance"].max()
+ax3.set_xlim(0, max_importance *1.15)
 
 plt.tight_layout()
 
