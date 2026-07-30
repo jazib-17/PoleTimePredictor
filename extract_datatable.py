@@ -20,19 +20,16 @@ print(fastf1.__version__)
 START_YEAR = 2019
 END_YEAR = 2019
 
-OUTPUT_FILE = "pole_dataset.csv"
+OUTPUT_FILE = "datasets/pole_dataset.csv"
 
-# -----------------------------
-# LOAD EXISTING DATA (IF ANY)
-
+# Load existing data (If any)
 cache_dir = 'fastf1_cache'
 os.makedirs(cache_dir, exist_ok=True)
 fastf1.Cache.enable_cache(cache_dir)
-# -----------------------------
 
 if os.path.exists(OUTPUT_FILE):
     existing_df = pd.read_csv(OUTPUT_FILE)
-    # Set of (Year, Race) pairs we've already collected, so we don't redo them
+    # Set of (Year, Race) pairs already collected, so we don't redo them
     existing_keys = set(zip(existing_df["Year"], existing_df["Race"]))
     print(f"Found existing dataset with {len(existing_df)} rows. Will only add new races.")
 else:
@@ -40,16 +37,12 @@ else:
     existing_keys = set()
     print("No existing dataset found. Starting fresh.")
 
-# -----------------------------
-# STORAGE (only new rows go here)
-# -----------------------------
 
+# STORAGE (only new rows go here)
 dataset = []
 
-# -----------------------------
-# LOOP THROUGH YEARS
-# -----------------------------
 
+# LOOP THROUGH YEARS
 for year in range(START_YEAR, END_YEAR + 1):
 
     print(f"\n========== {year} ==========")
@@ -61,10 +54,7 @@ for year in range(START_YEAR, END_YEAR + 1):
 
     races = list(calendar["EventName"])
 
-    # -----------------------------
     # LOOP THROUGH RACES
-    # -----------------------------
-
     for round_num, race in enumerate(races, start=1):
 
         # Skip races we've already processed in a previous run
@@ -116,14 +106,11 @@ for year in range(START_YEAR, END_YEAR + 1):
         # Most common gear (mode) - car_data["nGear"] samples throughout the lap
         most_common_gear = car_data["nGear"].mode().iloc[0]
 
-        # Time at full throttle - sum the time deltas where Throttle == 100
+        # Time at full throttle - sum the time deltas where Throttle >= 99
         car_data["TimeDelta"] = car_data["Time"].diff().dt.total_seconds().fillna(0)
         full_throttle_time = car_data.loc[car_data["Throttle"] >= 99, "TimeDelta"].sum()
 
-        # -----------------------------
         # Weather
-        # -----------------------------
-
         weather = session.weather_data
 
         # -----------------------------
@@ -155,9 +142,8 @@ for year in range(START_YEAR, END_YEAR + 1):
 
         })
 
-# -----------------------------
+
 # CREATE DATAFRAME OF NEW ROWS
-# -----------------------------
 
 new_df = pd.DataFrame(dataset)
 
@@ -171,13 +157,10 @@ if not new_df.empty:
     # Drop any accidental duplicates on (Year, Race), keeping the newest
     combined_df = combined_df.drop_duplicates(subset=["Year", "Race"], keep="last")
 
-    # Sort nicely
+    # Sort by year and round
     combined_df = combined_df.sort_values(["Year", "Round"]).reset_index(drop=True)
 
-    # -----------------------------
-    # SAVE
-    # -----------------------------
-
+    # Save
     combined_df.to_csv(OUTPUT_FILE, index=False)
 
     print(f"\nDataset updated successfully! Added {len(new_df)} new row(s).")

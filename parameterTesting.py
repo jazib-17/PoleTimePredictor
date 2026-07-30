@@ -1,3 +1,13 @@
+"""
+CatBoost Hyperparameter Tuning
+
+Performs time-series cross-validation to evaluate CatBoost
+hyperparameter combinations and identifies the configuration
+with the lowest mean absolute error for pole time prediction.
+
+Author: Jazib Ahmed
+"""
+
 import pandas as pd
 import numpy as np
 from catboost import CatBoostRegressor
@@ -6,16 +16,17 @@ from sklearn.metrics import mean_absolute_error
 from itertools import product
 
 # ----------------------------
-# Load and sort chronologically
+# Load data
 # ----------------------------
-train = pd.read_csv("pole_mergeset.csv")
-train = train.drop(columns=["type"])
-train = train.sort_values(["Year", "Round"]).reset_index(drop=True)
+train = pd.read_csv("datasets/pole_mergeset.csv")
+# Drop the same features from prediction
+train = train.drop(columns=["Year","drs_zones_prev","active_aero_zones","Round",'type','Race','Humidity','Pressure'])
 
 X = train.drop(columns=["PoleTime"])
 y = train["PoleTime"]
 
-cat_features = ['Race', 'tyre_wear', 'downforce_req', 'Rainfall']
+# Categorical features for CatBoost
+cat_features = ['tyre_wear','downforce_req', 'Rainfall','new_reg','reg']
 
 for col in cat_features:
     X[col] = X[col].astype(str)
@@ -25,7 +36,7 @@ for col in cat_features:
 # ----------------------------
 param_grid = {
     "iterations": [1500, 2000],
-    "depth": [4, 5],
+    "depth": [3, 4],
     "learning_rate": [0.01, 0.025, 0.05],
 }
 
@@ -49,15 +60,17 @@ for combo in combinations:
         X_tr, X_val = X.iloc[train_idx], X.iloc[val_idx]
         y_tr, y_val = y.iloc[train_idx], y.iloc[val_idx]
 
+        # Prediction model on current combo
         model = CatBoostRegressor(
             **params,
             cat_features=cat_features,
             random_state=42,
-            verbose=False
+            verbose=False,
         )
         model.fit(X_tr, y_tr)
 
         preds = model.predict(X_val)
+        # MAE so that wet qualifyings dont dominate (like they would with RMSE)
         mae = mean_absolute_error(y_val, preds)
         fold_scores.append(mae)
 
@@ -72,4 +85,4 @@ results_df = pd.DataFrame(results).sort_values("avg_MAE")
 print("\nBest parameters:")
 print(results_df.iloc[0])
 
-results_df.to_csv("catboost_tuning_results.csv", index=False)
+results_df.to_csv("datasets/catboost_tuning_results.csv", index=False)

@@ -1,3 +1,13 @@
+"""
+Pole Time Prediction
+
+Trains a machine learning model on historical qualifying data
+and predicts Formula 1 pole times for future races, while
+reporting feature importance to interpret the model.
+
+Author: Jazib Ahmed
+"""
+
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor, HistGradientBoostingRegressor
 from catboost import CatBoostRegressor
@@ -6,12 +16,12 @@ from catboost import CatBoostRegressor
 # ----------------------------
 # Load datasets
 # ----------------------------
-train = pd.read_csv("pole_mergeset.csv")
-future = pd.read_csv("future_races.csv")
+train = pd.read_csv("datasets/pole_mergeset.csv")
+future = pd.read_csv("datasets/future_races.csv")
 
 # Remove the column from both datasets
-train = train.drop(columns=["Year","drs_zones_prev","active_aero_zones"])
-future = future.drop(columns=["Year","drs_zones_prev","active_aero_zones"])
+train = train.drop(columns=["Year","drs_zones_prev","active_aero_zones","Round",'type','Humidity','Pressure','Race'])
+future = future.drop(columns=["drs_zones_prev","active_aero_zones",'type','Humidity','Pressure'])
 
 # ----------------------------
 # Prepare training data
@@ -22,6 +32,8 @@ y_train = train["PoleTime"]
 # ----------------------------
 # One-hot encode categorical columns
 # ----------------------------
+
+# For RandomForest/HistGradientBoost
 '''
 X_train = pd.get_dummies(X_train)
 
@@ -29,6 +41,7 @@ X_train = pd.get_dummies(X_train)
 
 future_encoded = pd.get_dummies(future)
 '''
+# For CatBoost
 future_encoded = future.copy()
 future_encoded = future_encoded.reindex(
     columns=X_train.columns,
@@ -36,7 +49,7 @@ future_encoded = future_encoded.reindex(
 )
 
 # ----------------------------
-# Train Random Forest
+# Train Random Forest / HistGradientBoost
 # ----------------------------
 '''
 model = RandomForestRegressor(
@@ -57,17 +70,20 @@ model = HistGradientBoostingRegressor(
 
 model.fit(X_train, y_train)
 '''
+# ----------------------------
+# Train CatBoost
+# ----------------------------
 
-# List your categorical column names (e.g. circuit type)
-cat_features = ['Race', 'type','tyre_wear', 'downforce_req', 'Rainfall']
+# Categorical features for CatBoost
+cat_features = ['tyre_wear','downforce_req', 'Rainfall','new_reg','reg']
 
 model = CatBoostRegressor(
     iterations=2000,
-    depth=4,
-    learning_rate=0.01,
+    depth=3,
+    learning_rate=0.025,
     cat_features=cat_features,
     random_state=42,
-    verbose=False
+    verbose=False,
 )
 
 model.fit(X_train, y_train)
@@ -79,13 +95,36 @@ predictions = model.predict(future_encoded)
 
 future["PredictedPoleTime"] = predictions.round(3)
 
-future.to_csv("future_predictions.csv", index=False)
+# Print predictions
+print(predictions.round(3))
 
-# Feature importances
+# Save
+future.to_csv("datasets/future_predictions.csv", index=False)
+
+# Feature importances for CatBoost
 importances = model.get_feature_importance()
-for name, score in sorted(zip(X_train.columns, importances), key=lambda x: -x[1]):
-    print(f"{name}: {score:.4f}")
 
+importance_df = pd.DataFrame({
+    "Feature": X_train.columns,
+    "Importance": importances
+})
+
+importance_df = importance_df.sort_values(
+    by="Importance",
+    ascending=False
+).reset_index(drop=True)
+
+# Print feature importance
+for _, row in importance_df.iterrows():
+    print(f"{row['Feature']}: {row['Importance']:.4f}")
+
+# Save feature importance
+importance_df.to_csv(
+    "datasets/feature_importance.csv",
+    index=False
+)
+
+# Feature importances for RandomForest
 '''
 importance = pd.DataFrame({
     "Feature": X_train.columns,
