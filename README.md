@@ -2,7 +2,7 @@
 
 A machine learning pipeline that predicts Formula 1 qualifying pole times using historical race data, telemetry, weather conditions, and circuit characteristics.
 
-Note: This is v3 of the project. Future versions with improvements are coming soon.
+Note: This is v3 of the project. Future versions with improvements are in progress.
 
 ## How It Works
 
@@ -114,7 +114,7 @@ Note: `extract_datatable.py` caches FastF1 data locally under `fastf1_cache/` to
 
 - **Algorithm:** CatBoost Regressor
 - **Target:** Pole qualifying lap time (seconds)
-- **Features:** Telemetry from the pole lap — top speed, average speed (measured for historical races, corrected/expected for 2026 races), full-throttle time, most common gear — plus weather conditions (air temp, track temp) and circuit characteristics (length, tyre wear, downforce requirement, power sensitivity, turns), along with regulation-era indicators (`new_reg`, `reg`).
+- **Features:** Telemetry from the pole lap — top speed, average speed (measured for historical races, corrected/expected for 2026 races), full-throttle time, most common gear plus weather conditions (air temp, track temp) and circuit characteristics (length, tyre wear, downforce requirement, power sensitivity, turns), along with regulation-era indicators (`new_reg`, `reg`).
 - **Categorical features** (`tyre_wear`, `downforce_req`, `Rainfall`, `new_reg`, `reg`) are passed natively to CatBoost rather than one-hot encoded. `Race` and circuit `type` are excluded from the model's training features as of v3.
 - Best hyperparameters are selected via time-series cross-validation in `parameterTesting.py` before being used in the final model.
 
