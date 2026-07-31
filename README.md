@@ -86,8 +86,8 @@ The project follows a five-stage pipeline:
 ## Data Sources
 - **FastF1** — live extraction of qualifying results, telemetry, and weather data.
 - `datasets/circuits_info.csv` — compiled by the author.
-- **Pitwall Analytics (Kaggle)** — reference data used while compiling circuit info.
-- **Formula 1 Circuits 1950–Present (Kaggle)** — reference data used while compiling circuit info.
+- **[Pitwall Analytics](https://www.kaggle.com/datasets/oshomuralidaran/pitwall-analytics)** (Kaggle) — reference data used while compiling circuit info.
+- **[Formula 1 Circuits 1950–Present](https://www.kaggle.com/datasets/kishan305/formula-1-circuits-1950-present?resource=download)** (Kaggle) — reference data used while compiling circuit info.
 
 ## Setup
 
